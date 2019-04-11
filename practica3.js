@@ -50,6 +50,7 @@ window.addEventListener("load",function() {
 
     Q.load(["mario_small.png", "mario_small.json"], function() {
         Q.compileSheets("mario_small.png", "mario_small.json");
+        // Hola
     });
 
 });
