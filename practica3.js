@@ -7,13 +7,47 @@ window.addEventListener("load",function() {
     .touch();                          // Add in touch support (for the UI)
 
     Q.loadTMX("level.tmx", function() {
-        //Q.compileSheets("tiles.png"); //Comentar o descomentar esta linea no afecta al resultado
         Q.stageScene("level1");
+        //Q.state.reset();
     });
 
-    Q.scene("level1",function(stage) {
-        Q.stageTMX("level.tmx",stage);
-        stage.add("viewport"); //Falta por hacer lo de 150, 380, que no sé cómo *********************
+    Q.scene("level1", function(stage) {
+        Q.stageTMX("level.tmx", stage);
+        var player = stage.insert(new Q.Mario());
+        stage.add("viewport").follow(player, {x: true});
+        stage.viewport.offsetX = -100;
+    });
+
+    Q.Sprite.extend("Mario", {
+        init: function(p) {
+            this._super(p, {
+                //sprite: "mario_small",
+                sheet: "marioR",
+                jumpSpeed: -400,
+                speed: 300,
+                x : 400,
+                y : 100
+            });
+            this.add('2d, platformerControls');
+            this.on("hit.sprite",function(collision){});
+        },
+
+        step: function(dt) {
+            if(this.p.y > 600) {
+                this.p.y = 600;
+            }
+            if(this.p.x < 400) {
+                this.p.x = 400;
+            }
+        
+            if(this.p.vy > 600) { this.p.vy = 600; }
+            
+          }
+        
+    });
+
+    Q.load(["mario_small.png", "mario_small.json"], function() {
+        Q.compileSheets("mario_small.png", "mario_small.json");
     });
 
 });
