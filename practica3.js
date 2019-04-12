@@ -42,15 +42,14 @@ window.addEventListener("load",function() {
     });
 
     Q.scene('mainTitle',function(stage) {
-        var container = stage.insert(new Q.UI.Container({
-          x: Q.width/2, y: Q.height/2, fill: "rgba(0,0,0,0.5)"
-        }));
-        var button = container.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",label: "Start Game" }))         
+        var button = new Q.UI.Button({ x: Q.width/2, y: Q.height/2, asset : "mainTitle.png" });
+        stage.insert(button);
+        //var button = container.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",label: "Start Game" }))         
         button.on("click",function() {
             Q.clearStages();
             Q.stageScene('level1');
         });
-        container.fit(20);
+
     });
 
 
@@ -119,7 +118,7 @@ window.addEventListener("load",function() {
                 vy: 0.1,
                 y: 400
             });
-            this.add("2d, animations");
+            this.add("2d, animation");
             
             this.on("bump.left,bump.right,bump.bottom",function(collision) {
                 if(collision.obj.isA("Mario")) { 
@@ -135,17 +134,24 @@ window.addEventListener("load",function() {
             });
 
             this.on("bump.bottom",this, "jump");
-            this.play("alive");
+            //this.play("alive");
            
         },
         jump: function(dt){
             this.p.vy=-300;
         },
+        step: function(dt){
+           if (this.p.vy < 0) this.play("subir");
+           else this.play("bajar");
+        }
+        
+        
         
             
         
     });
-   
+
+
 
     Q.load(["mario_small.png", "mario_small.json",
             "goomba.png", "goomba.json",
@@ -157,9 +163,11 @@ window.addEventListener("load",function() {
         Q.compileSheets("bloopa.png", "bloopa.json");
        // Q.compileSheets("princess.png","princess.json");
        Q.animations("bloopa", {
-        alive:{frames: [0,1], rate: 1/6, loop: true},
-        dead:{frames: [1], rate: 1/4, loop: false}
+        subir:{frames: [0], rate: 1/3, loop: true},
+        bajar:{frames: [1], rate: 1/3, loop: true},
+        muerto:{frames: [2], rate: 1/4, loop: false}
         });
+
     });
 
 });
