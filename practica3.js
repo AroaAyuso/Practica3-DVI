@@ -19,6 +19,7 @@ window.addEventListener("load",function() {
         stage.viewport.offsetX = -200;
 
         stage.insert(new Q.Goomba({x : 950, y : 535}));
+        stage.insert(new Q.Goomba({x : 910, y : 535}));
         stage.insert(new Q.Bloopa({x : 450, y : 100}));
     });
 
@@ -53,13 +54,14 @@ window.addEventListener("load",function() {
         init: function(p) {
             this._super(p, {
                 sheet: "goomba",
-                //gravity: 0.5
+                vx: -75
             });
             this.add("2d, aiBounce");
 
             this.on("bump.left, bump.right, bump.bottom", function(collision) {
                 if(collision.obj.isA("Mario")) {
                     collision.obj.destroy();
+                    vx: -this.p.vx;
                 }
             });
             this.on("bump.top", function(collision) {
