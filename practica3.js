@@ -22,6 +22,9 @@ window.addEventListener("load",function() {
         stage.viewport.offsetX = -200;
         
 
+        stage.insert(new Q.Goomba({x : 950, y : 535}));
+        stage.insert(new Q.Goomba({x : 910, y : 535}));
+        stage.insert(new Q.Bloopa({x : 450, y : 100}));
         stage.insert(new Q.Goomba({x : 700, y : 535}));
         stage.insert(new Q.Goomba({x : 1200, y : 535}));
         stage.insert(new Q.Goomba({x : 1300, y : 535}));
@@ -132,8 +135,7 @@ window.addEventListener("load",function() {
         init: function(p) {
             this._super(p, {
                 sheet: "goomba",
-                vx: 0.1
-                //gravity: 0.5
+                vx: -75
             });
             this.add("2d, aiBounce");
 
@@ -141,6 +143,7 @@ window.addEventListener("load",function() {
                 if(collision.obj.isA("Mario")) {
                     Q.stageScene("endGame",1, { label: "You Died" }); 
                     collision.obj.destroy();
+                    vx: -this.p.vx;
                 }
             });
             this.on("bump.top", function(collision) {
@@ -157,13 +160,15 @@ window.addEventListener("load",function() {
                 sprite: "bloopa",
                 sheet: "bloopa",
                 gravity: 0.4,
-                vy: 0.1,
-                y: 400
+                vy: 0,
             });
             this.add("2d, animation");
             this.on("muerte", this, "muerte");
 
             this.on("bump.left,bump.right,bump.bottom",function(collision) {
+            this.add('2d, animation');
+            
+            this.on("bump.left, bump.right, bump.bottom", function(collision) {
                 if(collision.obj.isA("Mario")) { 
                   Q.stageScene("endGame",1, { label: "You Died" }); 
                   collision.obj.destroy();
@@ -171,6 +176,7 @@ window.addEventListener("load",function() {
               });
           
            this.on("bump.top",function(collision) {
+            this.on("bump.top", function(collision) {
                 if(collision.obj.isA("Mario")) { 
                    this.play("muerte", 1)
                 }
@@ -179,7 +185,8 @@ window.addEventListener("load",function() {
             this.on("bump.bottom",this, "jump");
            
         },
-        jump: function(dt){
+
+        jump: function(dt) {
             this.p.vy=-300;
         },
         step: function(dt){
@@ -243,6 +250,21 @@ window.addEventListener("load",function() {
     });
 
 
+        step: function(dt) {
+           if (this.p.vy < 0)
+                this.play("subir");
+           else
+                this.play("bajar");
+        }
+        
+    });
+
+    Q.animations("bloopa", {
+        subir: {frames: [0], rate: 1/3, loop: true},
+        bajar: {frames: [1], rate: 1/3, loop: true},
+        muerto :{frames: [2], rate: 1/4, loop: false}
+    });
+
     Q.load(["mario_small.png", "mario_small.json",
             "goomba.png", "goomba.json",
             "bloopa.png", "bloopa.json",
@@ -255,6 +277,7 @@ window.addEventListener("load",function() {
         Q.compileSheets("princess.png");
         Q.compileSheets("coin.png","coin.json");
 
+       // Q.compileSheets("princess.png","princess.json");
     });
 
 });
