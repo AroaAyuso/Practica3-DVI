@@ -20,14 +20,13 @@ window.addEventListener("load",function() {
 
         stage.insert(new Q.Goomba({x : 950, y : 535}));
         stage.insert(new Q.Goomba({x : 910, y : 535}));
-        stage.insert(new Q.Bloopa({x : 450, y : 100}));
         stage.insert(new Q.Goomba({x : 700, y : 535}));
         stage.insert(new Q.Goomba({x : 1200, y : 535}));
         stage.insert(new Q.Goomba({x : 1300, y : 535}));
 
-        stage.insert(new Q.Bloopa({x : 850}));
-        stage.insert(new Q.Bloopa({x : 950, y: 450}));
-        stage.insert(new Q.Bloopa({x : 1050}));
+        //stage.insert(new Q.Bloopa({x : 850}));
+        //stage.insert(new Q.Bloopa({x : 950, y: 450}));
+        //stage.insert(new Q.Bloopa({x : 1050}));
 
     });
 
@@ -59,12 +58,20 @@ window.addEventListener("load",function() {
     Q.Sprite.extend("Mario", {
         init: function(p) {
             this._super(p, {
-                //sprite: "mario_small",
+                sprite: "animaciones_mario",
                 sheet: "marioR",
-                jumpSpeed: -525,
-                speed: 300,
+                jumpSpeed: -650,
+                speed: 200,
+                gravity: 1.5,
+                saltando: false,
+                level: 0, //Nivel de desarrollo de Mario: pequeño = 0, grande = 1, fuego = 2, invencible = 3
+                muerto: false
             });
-            this.add('2d, platformerControls');
+
+            this.add('2d, platformerControls, animation');
+
+            this.on("muerte_t", this, "muerte");
+
             this.on("hit.sprite",function(collision){
                 /*if(collision.obj.isA("Princess")) {
                     Q.stageScene("endGame",1, { label: "You Won!" }); 
@@ -72,50 +79,105 @@ window.addEventListener("load",function() {
                   }
                 */
             });
+
+            this.on("bump.bottom", function(collision) {
+                if(collision.obj.isA("Goomba")) {
+                    if(Q.inputs['up']) {
+                        this.p.vy = -500;
+                    }
+                    else {
+                        this.p.vy = -300;
+                    }
+                }
+            });
         },
 
         step: function(dt) {
-            if(this.p.y > 590) {
-                this.p.x = 210;
-                this.p.y = 535;
+            direccion = "";
+
+            //Cogemos la dirección de Mario para usarla con las animaciones
+            if(this.p.direction == 'right')
+                direccion = "derecha";
+            else
+                direccion = "izquierda";
+
+            //Animaciones
+            if(this.p.landed < 0 && !this.p.saltando) {
+                this.play("saltando_" + direccion);
             }
+            else {
+                if (this.p.vx != 0 || this.p.vy != 0)
+                    this.play("corriendo_" + direccion);
+                else
+                    this.play("quieto_" + direccion);
+            }
+
+            //Matamos a Mario cuando se cae del escenario
+            if(this.p.y > 590 && !this.muerto) {
+                this.muerteAux();
+            }
+            //Para que no se salga del borde izquierdo
             if(this.p.x < 210) {
                 this.p.x = 210;
             }
-        
-            if(this.p.vy > 600) { this.p.vy = 600; }
             
-          }
+        },
+
+        muerteAux: function(p) {
+            if(this.p.level == 0 || this.p.y > 590) {
+                this.muerto = true;
+                this.p.vy = -500;
+                this.p.collisionMask = Q.SPRITE_NONE;
+                this.play("muerte", 1);
+            }
+        },
         
+        muerte: function(p) {
+            this.destroy();
+        }
+
     });
 
     Q.Sprite.extend("Goomba", {
         init: function(p) {
             this._super(p, {
+                sprite: "animaciones_goomba",
                 sheet: "goomba",
                 vx: -75
             });
-            this.add("2d, aiBounce");
+
+            this.add('2d, aiBounce, animation');
+
+            this.on("muerte_t", this, "muerte");
 
             this.on("bump.left, bump.right, bump.bottom", function(collision) {
                 if(collision.obj.isA("Mario")) {
-                    Q.stageScene("endGame",1, { label: "You Died" }); 
-                    collision.obj.destroy();
-                    vx: -this.p.vx;
+                    Q.stageScene("endGame",1, { label: "You Died" });
+                    collision.obj.muerteAux();
+                    //collision.obj.destroy();
+                    this.p.vx = -this.p.vx;
                 }
             });
             this.on("bump.top", function(collision) {
                 if(collision.obj.isA("Mario")) {
-                    this.destroy();
+                    this.play("muerte", 1);
                 }
             });
+        },
+
+        step: function(dt) {
+            this.play("andar");
+        },
+
+        muerte: function(p) {
+            this.destroy();
         }
     });
 
     Q.Sprite.extend("Bloopa", {
         init: function(p) {
             this._super(p, {
-                sprite: "bloopa",
+                sprite: "animaciones_bloopa",
                 sheet: "bloopa",
                 gravity: 0.4,
                 vy: 0,
@@ -152,7 +214,22 @@ window.addEventListener("load",function() {
         
     });
 
-    Q.animations("bloopa", {
+    Q.animations("animaciones_mario", {
+        quieto_derecha: {frames: [0], loop: false},
+        quieto_izquierda: {frames: [14], loop: false},
+        corriendo_derecha: {frames: [1, 2, 3], rate: 1/13, loop: true},
+        corriendo_izquierda: {frames: [15, 16, 17], rate: 1/13, loop: true},
+        saltando_derecha: {frames: [4], loop: true},
+        saltando_izquierda: {frames: [18], loop: true},
+        muerte: {frames: [12], rate: 3, loop: false, trigger: "muerte_t"}
+    })
+
+    Q.animations("animaciones_goomba", {
+        andar: {frames: [0, 1], rate: 1/6, loop: true},
+        muerte: {frames: [2], rate: 1/10, loop: false, trigger: "muerte_t"}
+    });
+
+    Q.animations("animaciones_bloopa", {
         subir: {frames: [0], rate: 1/3, loop: true},
         bajar: {frames: [1], rate: 1/3, loop: true},
         muerto :{frames: [2], rate: 1/4, loop: false}
