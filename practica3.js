@@ -19,6 +19,7 @@ window.addEventListener("load",function() {
         stage.viewport.offsetX = -200;
 
         stage.insert(new Q.Goomba({x : 400, y : 400}));
+        stage.insert(new Q.Bloopa({x : 450, y : 100}));
     });
 
     Q.Sprite.extend("Mario", {
@@ -69,11 +70,42 @@ window.addEventListener("load",function() {
         }
     });
 
+    Q.Sprite.extend("Bloopa", {
+        init: function(p) {
+            this._super(p, {
+                //sprite: "bloopa",
+                sheet: "bloopa",
+                //visibleOnly: true,
+                gravity: 0.3,
+                visibleOnly: true,
+                vy: 0.15
+            });
+            this.add("2d");
+            
+            this.on("bump.left,bump.right,bump.bottom",function(collision) {
+                if(collision.obj.isA("Mario")) { 
+                 // Q.stageScene("endGame",1, { label: "You Died" }); 
+                  collision.obj.destroy();
+                }
+              });
+          
+            this.on("bump.top",function(collision) {
+                if(collision.obj.isA("Mario")) { 
+                  this.destroy();
+                }
+            });
+           
+        }
+    });
+	
+
     Q.load(["mario_small.png", "mario_small.json",
-            "goomba.png", "goomba.json"
-        ], function() {
-        Q.compileSheets("mario_small.png", "mario_small.json",
-            "goomba.png", "goomba.json");
+    "goomba.png", "goomba.json",
+    "bloopa.png", "bloopa.json"
+    ], function() {
+    Q.compileSheets("mario_small.png", "mario_small.json");
+    Q.compileSheets("goomba.png", "goomba.json");
+    Q.compileSheets("bloopa.png", "bloopa.json");
     });
 
 });
