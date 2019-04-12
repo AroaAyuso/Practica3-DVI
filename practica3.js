@@ -227,7 +227,6 @@ window.addEventListener("load",function() {
             this.add("2d, animation");
             this.on("muerte", this, "muerte");
 
-            this.on("bump.left,bump.right,bump.bottom",function(collision) {
             this.add('2d, animation');
             
             this.on("bump.left, bump.right, bump.bottom", function(collision) {
@@ -237,7 +236,6 @@ window.addEventListener("load",function() {
                 }
               });
           
-           this.on("bump.top",function(collision) {
             this.on("bump.top", function(collision) {
                 if(collision.obj.isA("Mario")) { 
                    this.play("muerte", 1)
@@ -251,11 +249,14 @@ window.addEventListener("load",function() {
         jump: function(dt) {
             this.p.vy=-300;
         },
+
         step: function(dt){
-            
-           if (this.p.vy < 0) this.play("bajar");
-           else this.play("subir");
+            if (this.p.vy < 0)
+                this.play("bajar");
+            else
+                this.play("subir");
         },
+
         muerte: function(p){
             this.destroy();
         }
@@ -307,18 +308,9 @@ window.addEventListener("load",function() {
         bajar:{frames: [1], rate: 1/3, loop: true},
         muerte:{frames: [2], rate: 1/10, loop: false, trigger:"muerte"}
     });
+
     Q.animations("coin_animacion",{
         brillo :{frames: [0,1,2], rate: 1/3, loop: true}
-    });
-
-
-        step: function(dt) {
-           if (this.p.vy < 0)
-                this.play("subir");
-           else
-                this.play("bajar");
-        }
-        
     });
 
     Q.animations("animaciones_mario", {
@@ -328,7 +320,7 @@ window.addEventListener("load",function() {
         corriendo_izquierda: {frames: [15, 16, 17], rate: 1/13, loop: true},
         saltando_derecha: {frames: [4], loop: true},
         saltando_izquierda: {frames: [18], loop: true},
-        muerte: {frames: [12], rate: 3, loop: false, trigger: "muerte_t"}
+        muerte: {frames: [12], rate: 1.2, loop: false, trigger: "muerte_t"}
     })
 
     Q.animations("animaciones_goomba", {
