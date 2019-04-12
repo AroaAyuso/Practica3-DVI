@@ -61,11 +61,11 @@ window.addEventListener("load",function() {
                     collision.obj.destroy();
                 }
             });
-            /*this.on("bump.top", function(colision) {
+            this.on("bump.top", function(colision) {
                 if(colision.obj.isA("Player")) {
                     this.destroy();
                 }
-            });*/
+            });
         }
     });
 
