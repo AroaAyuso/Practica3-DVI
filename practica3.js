@@ -10,12 +10,7 @@ window.addEventListener("load",function() {
     // CARGA
     Q.loadTMX("level.tmx", function() {
         Q.state.reset({coins: 0, lives : 3});
-        Q.stageScene("hud",1);
-        Q.stageScene("level1");
-        //Q.stageScene("mainTitle");
-        //Q.stageScene("endGame");
-
-        //Q.stageScene("mainTitle");
+        Q.stageScene("mainTitle");
     });
 
     // NIVEL 1
@@ -24,6 +19,8 @@ window.addEventListener("load",function() {
         var player = stage.insert(new Q.Mario({x : 210, y : 535}));
         stage.add("viewport").follow(player, {x: true});
         stage.viewport.offsetX = -200;
+        Q.audio.stop();
+		Q.audio.play('music_main.mp3',{ loop: true });
 
         stage.insert(new Q.Goomba({x : 950, y : 535}));
         stage.insert(new Q.Goomba({x : 910, y : 535}));
@@ -60,10 +57,10 @@ window.addEventListener("load",function() {
 
     // PANTALLA PRINCIPAL
     Q.scene('mainTitle',function(stage) {
-        var button = new Q.UI.Button({ x: Q.width, y: Q.height, asset: "mainTitle.png" });
+        //var button = new Q.UI.Button({x: Q.width/2, y: Q.height/2, asset : "mainTitle.png"});
+        var button = new Q.UI.Button({x: Q.width/2, y: Q.height/2, asset : "splash_screen.jpg"});
         stage.insert(button);
-        Q.state.reset({coins: 0, lives : 3});
-        //var button = container.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",label: "Start Game" }))         
+        Q.state.reset({ coins: 0, lives: 3});
         button.on("click",function() {
             Q.clearStages();
             Q.stageScene('level1');
@@ -74,7 +71,6 @@ window.addEventListener("load",function() {
             Q.stageScene('level1');
             Q.stageScene("hud",1);
 		});
-
     });
 
     // CONTADOR DE MONEDAS
@@ -140,14 +136,6 @@ window.addEventListener("load",function() {
 
             this.on("muerte_t", this, "muerte");
 
-            this.on("hit.sprite",function(collision){
-                /*if(collision.obj.isA("Princess")) {
-                    Q.stageScene("endGame",1, { label: "You Won!" }); 
-                    this.destroy();
-                  }
-                */
-            });
-
             this.on("bump.bottom", function(collision) {
                 if(collision.obj.isA("Goomba") && !this.p.muerto) {
                     if(Q.inputs['up']) {
@@ -197,6 +185,8 @@ window.addEventListener("load",function() {
                     Q.state.dec("lives", 1);
                     this.p.vy = -500;
                     this.p.collisionMask = Q.SPRITE_NONE;
+                    Q.audio.stop();
+		            Q.audio.play('music_die.mp3',{ loop: false });
                     this.play("muerte", 2); //Hacemos que desaparezca a los dos segundos para evitar situaciones no deseadas
                 }      
         },
@@ -327,6 +317,7 @@ window.addEventListener("load",function() {
             this._super(p, {
                 sprite: "animacion_coin",
                 sheet: "coin",
+                sensor: true,
                 cogida: false
             });
             this.add("tween, animation");
@@ -336,6 +327,7 @@ window.addEventListener("load",function() {
         hit: function(collision){
             if(collision.obj.isA("Mario") && !this.cogida){ 
                 Q.state.inc('coins', 1);
+		        Q.audio.play('coin.mp3',{ loop: false });
                 this.cogida = true;
                 this.animate(
                     {y: this.p.y-50}, 0.3, Q.Easing.Linear, 
@@ -378,12 +370,13 @@ window.addEventListener("load",function() {
             "goomba.png", "goomba.json",
             "bloopa.png", "bloopa.json",
             "princess.png",
-            "coin.png","coin.json"
+            "coin.png","coin.json",
+            "mainTitle.png", "splash_screen.jpg",
+            "music_main.mp3", "music_die.mp3", "coin.mp3","music_level_complete.mp3"
         ], function() {
         Q.compileSheets("mario_small.png", "mario_small.json");
         Q.compileSheets("goomba.png", "goomba.json");
         Q.compileSheets("bloopa.png", "bloopa.json");
-        Q.compileSheets("princess.png");
         Q.compileSheets("coin.png","coin.json");
 
     });
