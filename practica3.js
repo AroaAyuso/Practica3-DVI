@@ -8,10 +8,12 @@ window.addEventListener("load",function() {
     .enableSound();
 
     Q.loadTMX("level.tmx", function() {
+        Q.state.reset({coins: 0, lives : 3});
+        Q.stageScene("hud",1);
         Q.stageScene("level1");
         //Q.stageScene("mainTitle");
+        //Q.stageScene("endGame");
 
-        Q.state.reset({coins: 0});
         //Q.stageScene("mainTitle");
     });
 
@@ -20,20 +22,21 @@ window.addEventListener("load",function() {
         var player = stage.insert(new Q.Mario({x : 210, y : 535}));
         stage.add("viewport").follow(player, {x: true});
         stage.viewport.offsetX = -200;
-        
-
+        stage.insert(new Q.Goomba({x : 700, y : 535}));
+/*
         stage.insert(new Q.Goomba({x : 950, y : 535}));
         stage.insert(new Q.Goomba({x : 910, y : 535}));
         stage.insert(new Q.Goomba({x : 700, y : 535}));
         stage.insert(new Q.Goomba({x : 1200, y : 535}));
         stage.insert(new Q.Goomba({x : 1300, y : 535}));
 
-        //stage.insert(new Q.Bloopa({x : 850}));
-        //stage.insert(new Q.Bloopa({x : 950, y: 450}));
-        //stage.insert(new Q.Bloopa({x : 1050}));
-
-        stage.insert(new Q.Princess({x: 600}));
+        stage.insert(new Q.Bloopa({x : 850, y: 400}));
+        stage.insert(new Q.Bloopa({x : 950, y: 450}));
+        stage.insert(new Q.Bloopa({x : 1050, y: 400}));
+*/
+        stage.insert(new Q.Princess({x: 3270}));
         stage.insert(new Q.Coin({x: 500, y: 300}));
+
 
     });
 
@@ -45,6 +48,7 @@ window.addEventListener("load",function() {
         var label = container.insert(new Q.UI.Text({x:0, y: -10 - button.p.h, label: stage.options.label }));
         button.on("click",function() {
             Q.clearStages();
+            Q.state.reset({coins: 0,lives : 3});
             Q.stageScene('level1');
             Q.stageScene("hud",1);
         });
@@ -53,8 +57,9 @@ window.addEventListener("load",function() {
     });
 
     Q.scene('mainTitle',function(stage) {
-        var button = new Q.UI.Button({ x: Q.width, y: Q.height, asset : "mainTitle.png" });
+        var button = new Q.UI.Button({ x: Q.width, y: Q.height, asset: "mainTitle.png" });
         stage.insert(button);
+        Q.state.reset({coins: 0, lives : 3});
         //var button = container.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",label: "Start Game" }))         
         button.on("click",function() {
             Q.clearStages();
@@ -62,7 +67,7 @@ window.addEventListener("load",function() {
             Q.stageScene("hud",1);
         });
         Q.input.on("confirm", function(){
-			Q.clearStages();
+            Q.clearStages();
             Q.stageScene('level1');
             Q.stageScene("hud",1);
 		});
@@ -74,7 +79,7 @@ window.addEventListener("load",function() {
             this._super(p, {
                 label: "Coins: " + Q.state.get("coins"),
                 color: "white",
-                x: -130,
+                x: -200,
                 y: -600
             });
             Q.state.on("change.coins", this, "update_coin");
@@ -83,9 +88,22 @@ window.addEventListener("load",function() {
             this.p.label = "Coins: " + coins;
         }
     });
+    Q.UI.Text.extend("Lives_count", {
+        init: function(p) {
+            this._super(p, {
+                label: "Lives: " + Q.state.get("lives"),
+                color: "white",
+                x: -60,
+                y: -600
+            });
+            Q.state.on("change.lives", this, "update_live");
+        },
+        update_live: function(lives) {
+            this.p.label = "Lives: " + lives;
+        }
+    });
 
     Q.scene("hud", function(stage) {
-        /** Primero, voy a crear un "Container" que contendrá los labels. */
         var container = stage.insert(new Q.UI.Container({
             x: Q.width,
             y: Q.height,
@@ -93,6 +111,7 @@ window.addEventListener("load",function() {
         }));
 
         container.insert(new Q.Coins_count());
+        container.insert(new Q.Lives_count());
         stage.insert(container);
     });
 
@@ -166,15 +185,28 @@ window.addEventListener("load",function() {
         },
 
         muerteAux: function(p) {
-            if(this.p.level == 0 || this.p.y > 590) {
-                this.muerto = true;
-                this.p.vy = -500;
-                this.p.collisionMask = Q.SPRITE_NONE;
-                this.play("muerte", 1);
-            }
+                if(this.p.level == 0 || this.p.y > 590) {
+                   // Q.state.dec("lives", 1);
+                   // if(Q.state.get("lives") == 0){
+                        this.muerto = true;
+                        this.p.vy = -500;
+                        this.p.gravity = 1; // suba mas y no se choque con goomba
+                        this.p.collisionMask = Q.SPRITE_NONE;
+                        this.play("muerte", 1);
+                        Q.stageScene("endGame",1, { label: "You Died" });
+                   // }
+                   // else {
+                     //   level = "level" + Q.state.get("level")
+                     //   Q.stageScene(level);
+                        //Q.stageScene('level1');
+                        //Q.clearStages();
+					  //  Q.stageScene("HUD",1);
+                    //}
+                }      
         },
         
         muerte: function(p) {
+           // Q.stageScene("endGame",1, { label: "You Died" });
             this.destroy();
         }
 
@@ -194,14 +226,13 @@ window.addEventListener("load",function() {
 
             this.on("bump.left, bump.right, bump.bottom", function(collision) {
                 if(collision.obj.isA("Mario")) {
-                    Q.stageScene("endGame",1, { label: "You Died" });
                     collision.obj.muerteAux();
                     //collision.obj.destroy();
                     this.p.vx = -this.p.vx;
                 }
             });
             this.on("bump.top", function(collision) {
-                if(collision.obj.isA("Mario")) {
+                if(collision.obj.isA("Mario") && !collision.obj.muerto) { // no se elimina goomba pero sigue colisionando
                     this.play("muerte", 1);
                 }
             });
@@ -226,13 +257,12 @@ window.addEventListener("load",function() {
             });
             this.add("2d, animation");
             this.on("muerte", this, "muerte");
-
-            this.add('2d, animation');
             
             this.on("bump.left, bump.right, bump.bottom", function(collision) {
                 if(collision.obj.isA("Mario")) { 
-                  Q.stageScene("endGame",1, { label: "You Died" }); 
-                  collision.obj.destroy();
+                  //Q.stageScene("endGame",1, { label: "You Died" }); 
+                 // collision.obj.destroy();
+                 collision.obj.muerteAux();
                 }
               });
           
@@ -268,7 +298,7 @@ window.addEventListener("load",function() {
 			this._super(p, {
             asset: "princess.png",
             sensor: true,
-			y: 520
+			y: 488
 		});
 			this.on("hit", this, "sensor");
 		},
@@ -287,29 +317,34 @@ window.addEventListener("load",function() {
     Q.Sprite.extend("Coin", {
         init: function(p) {
             this._super(p, {
-                sprite: "coin_animacion",
-                sheet: "coin"
+                sprite: "animacion_coin",
+                sheet: "coin",
+                cogida: false
             });
             this.add("tween, animation");
             this.on("hit", this, "hit");
             this.play("brillo");
         },
         hit: function(collision){
-            if(collision.obj.isA("Mario")){ 
-                Q.state.inc('coin', 1);
-                this.destroy();
+            if(collision.obj.isA("Mario") && !this.cogida){ 
+                Q.state.inc('coins', 1);
+                this.cogida = true;
+                //this.destroy();
+                this.animate(
+                    {y: this.p.y-50}, 0.3, Q.Easing.Linear, 
+                    { callback: function(){ this.destroy() } });
 			}
         }
     });
 
 
-    Q.animations("bloopa", {
+    Q.animations("animaciones_bloopa", {
         subir:{frames: [0], rate: 1/3, loop: true},
         bajar:{frames: [1], rate: 1/3, loop: true},
         muerte:{frames: [2], rate: 1/10, loop: false, trigger:"muerte"}
     });
 
-    Q.animations("coin_animacion",{
+    Q.animations("animacion_coin",{
         brillo :{frames: [0,1,2], rate: 1/3, loop: true}
     });
 
@@ -328,12 +363,6 @@ window.addEventListener("load",function() {
         muerte: {frames: [2], rate: 1/10, loop: false, trigger: "muerte_t"}
     });
 
-    Q.animations("animaciones_bloopa", {
-        subir: {frames: [0], rate: 1/3, loop: true},
-        bajar: {frames: [1], rate: 1/3, loop: true},
-        muerto :{frames: [2], rate: 1/4, loop: false}
-    });
-
     Q.load(["mario_small.png", "mario_small.json",
             "goomba.png", "goomba.json",
             "bloopa.png", "bloopa.json",
@@ -346,7 +375,6 @@ window.addEventListener("load",function() {
         Q.compileSheets("princess.png");
         Q.compileSheets("coin.png","coin.json");
 
-       // Q.compileSheets("princess.png","princess.json");
     });
 
 });
