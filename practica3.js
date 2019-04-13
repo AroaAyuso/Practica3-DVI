@@ -21,7 +21,7 @@ window.addEventListener("load",function() {
         stage.viewport.offsetX = -200;
         Q.audio.stop();
 		Q.audio.play('music_main.mp3',{ loop: true });
-
+/*
         stage.insert(new Q.Goomba({x : 950, y : 535}));
         stage.insert(new Q.Goomba({x : 910, y : 535}));
         stage.insert(new Q.Goomba({x : 700, y : 535}));
@@ -31,8 +31,8 @@ window.addEventListener("load",function() {
         stage.insert(new Q.Bloopa({x : 850, y: 400}));
         stage.insert(new Q.Bloopa({x : 950, y: 450}));
         stage.insert(new Q.Bloopa({x : 1050, y: 400}));
-
-        //stage.insert(new Q.Princess({x: 3270}));
+*/
+        stage.insert(new Q.Princess({x: 6500, y: 520}));
         stage.insert(new Q.Coin({x: 500, y: 300}));
 
 
@@ -57,7 +57,6 @@ window.addEventListener("load",function() {
 
     // PANTALLA PRINCIPAL
     Q.scene('mainTitle',function(stage) {
-        //var button = new Q.UI.Button({x: Q.width/2, y: Q.height/2, asset : "mainTitle.png"});
         var button = new Q.UI.Button({x: Q.width/2, y: Q.height/2, asset : "splash_screen.jpg"});
         stage.insert(button);
         Q.state.reset({ coins: 0, lives: 3});
@@ -66,11 +65,6 @@ window.addEventListener("load",function() {
             Q.stageScene('level1');
             Q.stageScene("hud",1);
         });
-        Q.input.on("confirm", function(){
-            Q.clearStages();
-            Q.stageScene('level1');
-            Q.stageScene("hud",1);
-		});
     });
 
     // CONTADOR DE MONEDAS
@@ -116,6 +110,7 @@ window.addEventListener("load",function() {
         container.insert(new Q.Coins_count());
         container.insert(new Q.Lives_count());
         stage.insert(container);
+        
     });
 
     // MARIO
@@ -187,7 +182,7 @@ window.addEventListener("load",function() {
                     this.p.collisionMask = Q.SPRITE_NONE;
                     Q.audio.stop();
 		            Q.audio.play('music_die.mp3',{ loop: false });
-                    this.play("muerte", 2); //Hacemos que desaparezca a los dos segundos para evitar situaciones no deseadas
+                    this.play("muerte", 4); //Hacemos que desaparezca a los dos segundos para evitar situaciones no deseadas
                 }      
         },
         
@@ -196,11 +191,9 @@ window.addEventListener("load",function() {
             if(Q.state.get("lives") == 0)
                 Q.stageScene("endGame",1, { label: "You Died" });
             else {
-                //level = "level" + Q.state.get("level");
-                //Q.stageScene(level);
                 Q.clearStages();
                 Q.stageScene("level1");
-                Q.stageScene("HUD", 1);
+                Q.stageScene("hud", 1);
             }
         }
 
@@ -257,8 +250,7 @@ window.addEventListener("load",function() {
         init: function(p) {
 			this._super(p, {
             asset: "princess.png",
-            sensor: true,
-			y: 488
+            sensor: true
 		});
 			this.on("hit", this, "sensor");
 		},
@@ -317,12 +309,8 @@ window.addEventListener("load",function() {
                     else {
                         collision.obj.p.vy = -300;
                     }
-                    this.play("muerte", 1);
-                }
-            });
-
-            this.on("bump.bottom", function(collision) {
-                if(collision.obj.isA("Goomba") && !this.p.muerto) {
+                    Q.audio.play('kill_enemy.mp3',{ loop: false });
+                    this.play("muerte", 1);                   
                 }
             });
         },
@@ -370,7 +358,7 @@ window.addEventListener("load",function() {
             "princess.png",
             "coin.png","coin.json",
             "mainTitle.png", "splash_screen.jpg",
-            "music_main.mp3", "music_die.mp3", "coin.mp3","music_level_complete.mp3"
+            "music_main.mp3", "music_die.mp3", "coin.mp3","music_level_complete.mp3", "kill_enemy.mp3"
         ], function() {
         Q.compileSheets("mario_small.png", "mario_small.json");
         Q.compileSheets("goomba.png", "goomba.json");
