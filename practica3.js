@@ -31,11 +31,11 @@ window.addEventListener("load",function() {
         stage.insert(new Q.Goomba({x : 1200, y : 535}));
         stage.insert(new Q.Goomba({x : 1300, y : 535}));
 
-        /*stage.insert(new Q.Bloopa({x : 850, y: 400}));
+        stage.insert(new Q.Bloopa({x : 850, y: 400}));
         stage.insert(new Q.Bloopa({x : 950, y: 450}));
         stage.insert(new Q.Bloopa({x : 1050, y: 400}));
-*/
-        stage.insert(new Q.Princess({x: 3270}));
+
+        //stage.insert(new Q.Princess({x: 3270}));
         stage.insert(new Q.Coin({x: 500, y: 300}));
 
 
@@ -129,7 +129,7 @@ window.addEventListener("load",function() {
                 sprite: "animaciones_mario",
                 sheet: "marioR",
                 jumpSpeed: -650,
-                speed: 200,
+                speed: 220,
                 gravity: 1.5,
                 saltando: false,
                 level: 0, //Nivel de desarrollo de Mario: pequeño = 0, grande = 1, fuego = 2, invencible = 3
@@ -139,25 +139,6 @@ window.addEventListener("load",function() {
             this.add('2d, platformerControls, animation');
 
             this.on("muerte_t", this, "muerte");
-
-            this.on("hit.sprite",function(collision){
-                /*if(collision.obj.isA("Princess")) {
-                    Q.stageScene("endGame",1, { label: "You Won!" }); 
-                    this.destroy();
-                  }
-                */
-            });
-
-            this.on("bump.bottom", function(collision) {
-                if(collision.obj.isA("Goomba") && !this.p.muerto) {
-                    if(Q.inputs['up']) {
-                        this.p.vy = -500;
-                    }
-                    else {
-                        this.p.vy = -300;
-                    }
-                }
-            });
         },
 
         step: function(dt) {
@@ -202,7 +183,6 @@ window.addEventListener("load",function() {
         },
         
         muerte: function(p) {
-            //Q.stageScene("endGame",1, { label: "You Died" });
             this.destroy();
             if(Q.state.get("lives") == 0)
                 Q.stageScene("endGame",1, { label: "You Died" });
@@ -226,31 +206,13 @@ window.addEventListener("load",function() {
                 vx: -75
             });
 
-            this.add('2d, aiBounce, animation');
-
-            this.on("muerte_t", this, "muerte");
-
-            this.on("bump.left, bump.right, bump.bottom", function(collision) {
-                if(collision.obj.isA("Mario")) {
-                    collision.obj.muerteAux();
-                    this.p.vx = -this.p.vx;
-                }
-            });
-            this.on("bump.top", function(collision) {
-                if(collision.obj.isA("Mario") && !collision.obj.p.muerto) { // no se elimina goomba pero sigue colisionando
-                    this.play("muerte", 1);
-                }
-            });
-            
+            this.add('2d, aiBounce, animation, DefaultEnemy');
         },
 
         step: function(dt) {
             this.play("andar");
-        },
-
-        muerte: function(p) {
-            this.destroy();
         }
+
     });
 
     // BLOOPA
@@ -262,22 +224,7 @@ window.addEventListener("load",function() {
                 gravity: 0.4,
                 vy: 0,
             });
-            this.add("2d, animation");
-            this.on("muerte", this, "muerte");
-            
-            this.on("bump.left, bump.right, bump.bottom", function(collision) {
-                if(collision.obj.isA("Mario")) { 
-                  //Q.stageScene("endGame",1, { label: "You Died" }); 
-                 // collision.obj.destroy();
-                 collision.obj.muerteAux();
-                }
-              });
-          
-            this.on("bump.top", function(collision) {
-                if(collision.obj.isA("Mario")) { 
-                   this.play("muerte", 1)
-                }
-            });
+            this.add('2d, animation, DefaultEnemy');
 
             this.on("bump.bottom",this, "jump");
            
@@ -292,10 +239,6 @@ window.addEventListener("load",function() {
                 this.play("bajar");
             else
                 this.play("subir");
-        },
-
-        muerte: function(p){
-            this.destroy();
         }
     
     });
@@ -344,11 +287,47 @@ window.addEventListener("load",function() {
         }
     });
 
+    // DEFAULT_ENEMY
+    Q.component("DefaultEnemy", {
+        added: function(p) {
+            this.entity.on("muerte_t", this.entity, "muerte");
+
+            this.entity.on("bump.left, bump.right, bump.bottom", function(collision) {
+                if(collision.obj.isA("Mario")) {
+                    collision.obj.muerteAux();
+                }
+            });
+
+            this.entity.on("bump.top", function(collision) {
+                if(collision.obj.isA("Mario") && !collision.obj.p.muerto) { // no se elimina goomba pero sigue colisionando
+                    if(Q.inputs['up']) {
+                        collision.obj.p.vy = -500;
+                    }
+                    else {
+                        collision.obj.p.vy = -300;
+                    }
+                    this.play("muerte", 1);
+                }
+            });
+
+            this.on("bump.bottom", function(collision) {
+                if(collision.obj.isA("Goomba") && !this.p.muerto) {
+                }
+            });
+        },
+
+        extend: {
+            muerte: function(p) {
+                this.destroy();
+            }
+        }
+    });
+
     // ANIMACIONES DEL BLOOPA
     Q.animations("animaciones_bloopa", {
         subir:{frames: [0], rate: 1/3, loop: true},
         bajar:{frames: [1], rate: 1/3, loop: true},
-        muerte:{frames: [2], rate: 1/10, loop: false, trigger:"muerte"}
+        muerte:{frames: [2], rate: 1/10, loop: false, trigger:"muerte_t"}
     });
 
     //ANIMACIONES DE LA MONEDA
