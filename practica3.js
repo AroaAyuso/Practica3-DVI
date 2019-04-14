@@ -21,7 +21,7 @@ window.addEventListener("load",function() {
         stage.viewport.offsetX = -200;
         Q.audio.stop();
 		Q.audio.play('music_main.mp3',{ loop: true });
-
+/*
         stage.insert(new Q.Goomba({x : 700, y : 535}));
         stage.insert(new Q.Goomba({x : 1300, y : 535}));
         stage.insert(new Q.Goomba({x : 1450, y : 535}));
@@ -47,7 +47,7 @@ window.addEventListener("load",function() {
         stage.insert(new Q.Goomba({x : 4300, y : 535}));
         stage.insert(new Q.Goomba({x : 4400, y : 535}));
         stage.insert(new Q.Bloopa({x : 4750, y : 535}));
-
+*/
         //  Bloques con moneda
         stage.insert(new Q.Question({x: 380, y: 425}));
         stage.insert(new Q.Question({x: 527, y: 425}));
@@ -126,16 +126,28 @@ window.addEventListener("load",function() {
 
     // PANTALLA DE FIN DE JUEGO
     Q.scene('endGame',function(stage) {
-        var container = stage.insert(new Q.UI.Container({
-          x: Q.width/2, y: Q.height/2, fill: "rgba(0,0,0,0.5)"
-        }));
-        var button = container.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",label: "Play Again" }))         
-        var label = container.insert(new Q.UI.Text({x:0, y: -10 - button.p.h, label: stage.options.label }));
+        var container = stage.insert(new Q.UI.Container({ x: Q.width/2, y: Q.height/2, fill: "rgba(0,0,0,0.5)"}));
+        if(Q.state.get("lives") == 0 || Q.state.get("level") == 2){
+            var button = container.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",label: "Play Again" }));         
+            var label = container.insert(new Q.UI.Text({x:0, y: -10 - button.p.h, label: stage.options.label }));
+        }
+        else {
+            var button = container.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",label: "Next Level" }));       
+            var label = container.insert(new Q.UI.Text({x:0, y: -10 - button.p.h, label: stage.options.label }));
+        }
+
         button.on("click",function() {
             Q.clearStages();
-            Q.state.reset({punct: 0, coins: 0,lives : 3});
-            Q.stageScene('level1');
-            Q.stageScene("hud",1);
+            if (Q.state.get("lives") == 0|| Q.state.get("level") > 3){
+                Q.state.reset({punct: 0, coins: 0,lives : 3, level: 1});
+                Q.stageScene('level1');
+                Q.stageScene("hud",1);
+            }
+            else{
+                level = "level" + Q.state.get("level");
+				Q.stageScene(level);
+				Q.stageScene("hud",1);
+            }
         });
         
         container.fit(20);
@@ -145,10 +157,10 @@ window.addEventListener("load",function() {
     Q.scene('mainTitle',function(stage) {
         var button = new Q.UI.Button({x: Q.width/2, y: Q.height/2, asset : "splash_screen.jpg"});
         stage.insert(button);
-        Q.state.reset({punct: 0, coins: 0, lives: 3});
+        Q.state.reset({punct: 0, coins: 0, lives: 3, level: 1});
         button.on("click",function() {
             Q.clearStages();
-            Q.stageScene('level2');
+            Q.stageScene('level1');
             Q.stageScene("hud",1);
         });
     });
@@ -305,8 +317,9 @@ window.addEventListener("load",function() {
             if(Q.state.get("lives") == 0)
                 Q.stageScene("endGame",1, { label: "You Died" });
             else {
+                level = "level" + Q.state.get("level");
                 Q.clearStages();
-                Q.stageScene("level1");
+                Q.stageScene(level);
                 Q.stageScene("hud", 1);
             }
         }
@@ -375,7 +388,8 @@ window.addEventListener("load",function() {
 			if(collision.obj.isA("Mario")){
                 Q.audio.stop();
                 Q.audio.play('music_level_complete.mp3',{ loop: false });
-                Q.stageScene("endGame",1, { label: "You Win" }); 
+                Q.stageScene("endGame",1,{label: "LEVEL " + Q.state.get("level") + " WON!"});
+				Q.state.inc("level", 1);
                 collision.obj.destroy(); // Se elimina Mario
                 this.destroy(); // Se elimina Peach
 			}
