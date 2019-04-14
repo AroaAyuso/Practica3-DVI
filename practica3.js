@@ -22,12 +22,18 @@ window.addEventListener("load",function() {
         Q.audio.stop();
 		Q.audio.play('music_main.mp3',{ loop: true });
 /*
+
+        //Enemigos
         stage.insert(new Q.Goomba({x : 700, y : 535}));
+
         stage.insert(new Q.Goomba({x : 1300, y : 535}));
+
         stage.insert(new Q.Goomba({x : 1450, y : 535}));
         stage.insert(new Q.Goomba({x : 1500, y : 535}));
+
         stage.insert(new Q.Bloopa({x : 2600, y : 535}));
         stage.insert(new Q.Bloopa({x : 2700, y : 535}));
+
         stage.insert(new Q.Bloopa({x : 2950, y : 535}));
         stage.insert(new Q.Goomba({x : 3100, y : 535}));
         stage.insert(new Q.Goomba({x : 3150, y : 535}));
@@ -46,6 +52,7 @@ window.addEventListener("load",function() {
         stage.insert(new Q.Goomba({x : 4200, y : 535}));
         stage.insert(new Q.Goomba({x : 4300, y : 535}));
         stage.insert(new Q.Goomba({x : 4400, y : 535}));
+
         stage.insert(new Q.Bloopa({x : 4750, y : 535}));
 */
         //  Bloques con moneda
@@ -103,6 +110,7 @@ window.addEventListener("load",function() {
         stage.insert(new Q.Coin({x: 5593, y: 391}));
         stage.insert(new Q.Coin({x: 5627, y: 391}));
 
+        //Princesa
         stage.insert(new Q.Princess({x: 6500, y: 520}));
 
 
@@ -116,12 +124,55 @@ window.addEventListener("load",function() {
         Q.audio.stop();
         Q.audio.play('music_main.mp3',{ loop: true });
         
+        //Enemigos
+        stage.insert(new Q.Bloopa({x : 765, y : 100}));
+
         stage.insert(new Q.Goomba({x : 800, y : 535}));
         stage.insert(new Q.Goomba({x : 850, y : 535}));
-        stage.insert(new Q.Bloopa({x : 748, y : 300}));
-        stage.insert(new Q.Bloopa({x : 1564, y : 300}));
-        stage.insert(new Q.Bloopa({x : 1666, y : 300}));
-        stage.insert(new Q.Bloopa({x : 1768, y : 300}));
+
+        stage.insert(new Q.Bloopa({x : 1581, y : 300}));
+        stage.insert(new Q.Bloopa({x : 1683, y : 300}));
+        stage.insert(new Q.Bloopa({x : 1785, y : 300}));
+
+        stage.insert(new Q.Bloopa({x : 4505, y : 100}));
+        stage.insert(new Q.Bloopa({x : 4573, y : 300}));
+        stage.insert(new Q.Bloopa({x : 4641, y : 300}));
+        stage.insert(new Q.Bloopa({x : 4709, y : 300}));
+        stage.insert(new Q.Bloopa({x : 4777, y : 300}));
+        stage.insert(new Q.Bloopa({x : 4845, y : 300}));
+
+        stage.insert(new Q.Bloopa({x : 5797, y : 300}));
+        stage.insert(new Q.Bloopa({x : 5899, y : 300}));
+
+        stage.insert(new Q.Goomba({x : 6103, y : 300}));
+        stage.insert(new Q.Goomba({x : 6153, y : 300}));
+        stage.insert(new Q.Goomba({x : 6203, y : 300}));
+        stage.insert(new Q.Goomba({x : 6253, y : 300}));
+
+        //Monedas
+        stage.insert(new Q.Coin({x : 612, y : 153}));
+        stage.insert(new Q.Coin({x : 765, y : 34}));
+
+        stage.insert(new Q.Coin({x : 2142, y : 204}));
+
+        stage.insert(new Q.Coin({x : 2737, y : 68}));
+        stage.insert(new Q.Coin({x : 2805, y : 170}));
+        stage.insert(new Q.Coin({x : 2873, y : 306}));
+
+        stage.insert(new Q.Coin({x : 3791, y : 34}));
+
+        stage.insert(new Q.Coin({x : 5049, y : 408}));
+
+        stage.insert(new Q.Coin({x : 5117, y : 272}));
+
+        stage.insert(new Q.Coin({x : 5355, y : 68}));
+
+        stage.insert(new Q.Coin({x : 6137, y : 442}));
+        stage.insert(new Q.Coin({x : 6171, y : 442}));
+        stage.insert(new Q.Coin({x : 6205, y : 442}));
+
+        //Princesa
+        stage.insert(new Q.Princess({x : 6579, y : 85}));
     });
 
     // PANTALLA DE FIN DE JUEGO
