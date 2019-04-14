@@ -21,7 +21,6 @@ window.addEventListener("load",function() {
         stage.viewport.offsetX = -200;
         Q.audio.stop();
 		Q.audio.play('music_main.mp3',{ loop: true });
-/*
 
         //Enemigos
         stage.insert(new Q.Goomba({x : 700, y : 535}));
@@ -54,7 +53,7 @@ window.addEventListener("load",function() {
         stage.insert(new Q.Goomba({x : 4400, y : 535}));
 
         stage.insert(new Q.Bloopa({x : 4750, y : 535}));
-*/
+
         //  Bloques con moneda
         stage.insert(new Q.Question({x: 380, y: 425}));
         stage.insert(new Q.Question({x: 527, y: 425}));
@@ -189,7 +188,7 @@ window.addEventListener("load",function() {
 
         button.on("click",function() {
             Q.clearStages();
-            if (Q.state.get("lives") == 0|| Q.state.get("level") > 3){
+            if (Q.state.get("lives") == 0 || Q.state.get("level") > 2){
                 Q.state.reset({punct: 0, coins: 0,lives : 3, level: 1});
                 Q.stageScene('level1');
                 Q.stageScene("hud",1);
@@ -465,7 +464,10 @@ window.addEventListener("load",function() {
             if(collision.obj.isA("Mario") && !this.cogida){ 
                 Q.state.inc('coins', 1);
                 Q.state.inc('punct', 100);
-		        Q.audio.play('coin.mp3',{ loop: false });
+                if(Q.state.get('coins') == 100)
+                    Q.audio.play('1up.mp3', { loop: false });
+                else 
+                    Q.audio.play('coin.mp3', { loop: false });
                 this.cogida = true;
                 this.animate(
                     {y: this.p.y-50}, 0.3, Q.Easing.Linear, 
@@ -494,9 +496,16 @@ window.addEventListener("load",function() {
             if(!this.p.abierta){
                 Q.state.inc('coins', 1);
                 Q.state.inc('punct', 100);
-		        Q.audio.play('coin.mp3',{ loop: false });
+		        if(Q.state.get('coins') == 100)
+                    Q.audio.play('1up.mp3', { loop: false });
+                else 
+                    Q.audio.play('coin.mp3', { loop: false });
                 this.p.asset = "17.gif";
                 this.p.abierta = true;
+                if(Q.state.get('coins') == 100) {
+                    Q.state.inc('lives', 1);
+                    Q.state.dec('coins', 100);
+                }
 			}
         }
     });
@@ -578,8 +587,9 @@ window.addEventListener("load",function() {
             "princess.png",
             "coin.png","coin.json",
             "mainTitle.png", "splash_screen.jpg",
-            "music_main.mp3", "music_die.mp3", "coin.mp3",
+            "music_main.mp3", "music_die.mp3",
             "music_level_complete.mp3", "kill_enemy.mp3",
+            "1up.mp3", "coin.mp3",
             "18.gif", "17.gif"
         ], function() {
         Q.compileSheets("mario_small.png", "mario_small.json");
