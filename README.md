@@ -3,7 +3,15 @@
 Realizada por Aroa Ayuso y Javier Sanz
 
 ## Mecánicas implementadas
-- Todas las de la parte obligatoria
+- Todas las de la parte obligatoria:
+  - Carga de nivel.
+  - Mario.
+  - Goomba.
+  - Bloopa.
+  - Animaciones.
+  - Pantallas de fin de juego al morir o ganar.
+  - Menú de inicio.
+  - Monedas.
 - Sonido
 - Mario es capaz de acelerar manteniendo pulsada la barra espaciadora (Y es necesario para pasarse el segundo nivel).
 - Mario es capaz de saltar más si mantiene pulsado el botón de arriba al caer sobre un enemigo.
