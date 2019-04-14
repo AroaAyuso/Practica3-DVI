@@ -8,7 +8,7 @@ window.addEventListener("load",function() {
     .enableSound();                     // Permite activar el sonido
 
     // CARGA
-    Q.loadTMX("level.tmx", function() {
+    Q.loadTMX("level.tmx, level2.tmx", function() {
         Q.state.reset({punct: 0, coins: 0, lives : 3});
         Q.stageScene("mainTitle");
     });
@@ -55,6 +55,22 @@ window.addEventListener("load",function() {
 
     });
 
+    Q.scene("level2", function(stage){
+        Q.stageTMX("level2.tmx", stage);
+        var player = stage.insert(new Q.Mario({x : 210, y : 535}));
+        stage.add("viewport").follow(player, {x: true});
+        stage.viewport.offsetX = -200;
+        Q.audio.stop();
+        Q.audio.play('music_main.mp3',{ loop: true });
+        
+        stage.insert(new Q.Goomba({x : 800, y : 535}));
+        stage.insert(new Q.Goomba({x : 850, y : 535}));
+        stage.insert(new Q.Bloopa({x : 748, y : 300}));
+        stage.insert(new Q.Bloopa({x : 1564, y : 300}));
+        stage.insert(new Q.Bloopa({x : 1666, y : 300}));
+        stage.insert(new Q.Bloopa({x : 1768, y : 300}));
+    });
+
     // PANTALLA DE FIN DE JUEGO
     Q.scene('endGame',function(stage) {
         var container = stage.insert(new Q.UI.Container({
@@ -79,7 +95,7 @@ window.addEventListener("load",function() {
         Q.state.reset({punct: 0, coins: 0, lives: 3});
         button.on("click",function() {
             Q.clearStages();
-            Q.stageScene('level1');
+            Q.stageScene('level2');
             Q.stageScene("hud",1);
         });
     });
@@ -418,7 +434,7 @@ window.addEventListener("load",function() {
             "princess.png",
             "coin.png","coin.json",
             "mainTitle.png", "splash_screen.jpg",
-            "music_main.mp3", "music_die.mp3", "coin.mp3","music_level_complete.mp3", "kill_enemy.mp3"
+            "music_main.mp3", "music_die.mp3", "coin.mp3","music_level_complete.mp3", "kill_enemy.mp3",
         ], function() {
         Q.compileSheets("mario_small.png", "mario_small.json");
         Q.compileSheets("goomba.png", "goomba.json");
