@@ -35,6 +35,8 @@ window.addEventListener("load",function() {
         stage.insert(new Q.Princess({x: 6500, y: 520}));
         stage.insert(new Q.Coin({x: 500, y: 300}));
 
+        stage.insert(new Q.Question({x: 700, y: 300}))
+
 
     });
 
@@ -213,6 +215,9 @@ window.addEventListener("load",function() {
 
         step: function(dt) {
             this.play("andar");
+        },
+        musica: function(dt){
+           // Q.audio.play('squish_enemy.mp3',{ loop: false });
         }
 
     });
@@ -241,8 +246,7 @@ window.addEventListener("load",function() {
                 this.play("bajar");
             else
                 this.play("subir");
-        }
-    
+        }    
     });
 
     // PRINCESA PEACH
@@ -257,6 +261,8 @@ window.addEventListener("load",function() {
 
 		sensor: function(collision){
 			if(collision.obj.isA("Mario")){
+                Q.audio.stop();
+                Q.audio.play('music_level_complete.mp3',{ loop: false });
                 Q.stageScene("endGame",1, { label: "You Win" }); 
                 collision.obj.destroy(); // Se elimina Mario
                 this.destroy(); // Se elimina Peach
@@ -286,6 +292,26 @@ window.addEventListener("load",function() {
                 this.animate(
                     {y: this.p.y-50}, 0.3, Q.Easing.Linear, 
                     { callback: function(){ this.destroy() } });
+			}
+        }
+    });
+
+
+    Q.Sprite.extend("Question",{
+        init: function(p) {
+            this._super(p, {
+                asset: "18.gif",
+                abierta: false,
+                gravity: 0
+            });
+            this.add("2d");
+            this.on("bump.bottom", this, "hit");
+        },
+        hit: function(collision){
+            if(!this.p.abierta){
+                this.stage.insert(new Q.Coin({x: this.p.x, y: this.p.y-34}));
+                this.p.asset = "17.gif";
+                this.p.abierta = true;
 			}
         }
     });
@@ -358,7 +384,9 @@ window.addEventListener("load",function() {
             "princess.png",
             "coin.png","coin.json",
             "mainTitle.png", "splash_screen.jpg",
-            "music_main.mp3", "music_die.mp3", "coin.mp3","music_level_complete.mp3", "kill_enemy.mp3"
+            "music_main.mp3", "music_die.mp3", "coin.mp3",
+            "music_level_complete.mp3", "kill_enemy.mp3",
+            "18.gif", "17.gif", "coin_spinner.gif"
         ], function() {
         Q.compileSheets("mario_small.png", "mario_small.json");
         Q.compileSheets("goomba.png", "goomba.json");
