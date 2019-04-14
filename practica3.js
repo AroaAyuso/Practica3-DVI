@@ -48,7 +48,60 @@ window.addEventListener("load",function() {
         stage.insert(new Q.Goomba({x : 4400, y : 535}));
         stage.insert(new Q.Bloopa({x : 4750, y : 535}));
 
-        stage.insert(new Q.Coin({x: 500, y: 300}));
+        //  Bloques con moneda
+        stage.insert(new Q.Question({x: 380, y: 425}));
+        stage.insert(new Q.Question({x: 527, y: 425}));
+        stage.insert(new Q.Question({x: 595, y: 425}));
+        stage.insert(new Q.Question({x: 561, y: 300}));
+        stage.insert(new Q.Question({x: 2479, y: 425}));
+        stage.insert(new Q.Question({x: 2516, y: 425}));
+
+        stage.insert(new Q.Question({x: 3404, y: 425}));
+        stage.insert(new Q.Question({x: 3540, y: 425}));
+        stage.insert(new Q.Question({x: 3676, y: 425}));
+
+        stage.insert(new Q.Question({x: 3472, y: 289}));
+        stage.insert(new Q.Question({x: 3608, y: 289}));
+
+        stage.insert(new Q.Question({x: 4200, y: 289}));
+        stage.insert(new Q.Question({x: 4235, y: 289}));
+
+        stage.insert(new Q.Question({x: 5642, y: 425}));
+        
+        // Monedas
+        stage.insert(new Q.Coin({x: 867, y: 391}));
+        stage.insert(new Q.Coin({x: 935, y: 391}));
+        stage.insert(new Q.Coin({x: 1003, y: 391}));
+
+        stage.insert(new Q.Coin({x: 1173, y: 357}));
+        stage.insert(new Q.Coin({x: 1241, y: 357}));
+        stage.insert(new Q.Coin({x: 1309, y: 357}));
+
+        stage.insert(new Q.Coin({x: 1513, y: 357}));
+        stage.insert(new Q.Coin({x: 1581, y: 357}));
+        stage.insert(new Q.Coin({x: 1649, y: 357}));
+
+        stage.insert(new Q.Coin({x: 2567, y: 255}));
+        stage.insert(new Q.Coin({x: 2601, y: 255}));
+        stage.insert(new Q.Coin({x: 2635, y: 255}));
+        stage.insert(new Q.Coin({x: 2669, y: 255}));
+        stage.insert(new Q.Coin({x: 2703, y: 255}));
+        stage.insert(new Q.Coin({x: 2737, y: 255}));
+
+        stage.insert(new Q.Coin({x: 3927, y: 255}));
+        stage.insert(new Q.Coin({x: 3961, y: 255}));
+        stage.insert(new Q.Coin({x: 3995, y: 255}));
+
+        stage.insert(new Q.Coin({x: 4539, y: 289}));
+        stage.insert(new Q.Coin({x: 4505, y: 289}));
+
+        stage.insert(new Q.Coin({x: 5049, y: 289}));
+        stage.insert(new Q.Coin({x: 5015, y: 289}));
+
+        stage.insert(new Q.Coin({x: 5661, y: 391}));
+        stage.insert(new Q.Coin({x: 5559, y: 391}));
+        stage.insert(new Q.Coin({x: 5593, y: 391}));
+        stage.insert(new Q.Coin({x: 5627, y: 391}));
 
         stage.insert(new Q.Princess({x: 6500, y: 520}));
 
@@ -274,6 +327,9 @@ window.addEventListener("load",function() {
 
         step: function(dt) {
             this.play("andar");
+        },
+        musica: function(dt){
+           // Q.audio.play('squish_enemy.mp3',{ loop: false });
         }
 
     });
@@ -302,8 +358,7 @@ window.addEventListener("load",function() {
                 this.play("bajar");
             else
                 this.play("subir");
-        }
-    
+        }    
     });
 
     // PRINCESA PEACH
@@ -318,6 +373,8 @@ window.addEventListener("load",function() {
 
 		sensor: function(collision){
 			if(collision.obj.isA("Mario")){
+                Q.audio.stop();
+                Q.audio.play('music_level_complete.mp3',{ loop: false });
                 Q.stageScene("endGame",1, { label: "You Win" }); 
                 collision.obj.destroy(); // Se elimina Mario
                 this.destroy(); // Se elimina Peach
@@ -353,6 +410,28 @@ window.addEventListener("load",function() {
                     Q.state.dec('coins', 100);
                 }
 
+			}
+        }
+    });
+
+
+    Q.Sprite.extend("Question",{
+        init: function(p) {
+            this._super(p, {
+                asset: "18.gif",
+                abierta: false,
+                gravity: 0
+            });
+            this.add("2d");
+            this.on("bump.bottom", this, "hit");
+        },
+        hit: function(collision){
+            if(!this.p.abierta){
+                Q.state.inc('coins', 1);
+                Q.state.inc('punct', 100);
+		        Q.audio.play('coin.mp3',{ loop: false });
+                this.p.asset = "17.gif";
+                this.p.abierta = true;
 			}
         }
     });
@@ -434,7 +513,9 @@ window.addEventListener("load",function() {
             "princess.png",
             "coin.png","coin.json",
             "mainTitle.png", "splash_screen.jpg",
-            "music_main.mp3", "music_die.mp3", "coin.mp3","music_level_complete.mp3", "kill_enemy.mp3",
+            "music_main.mp3", "music_die.mp3", "coin.mp3",
+            "music_level_complete.mp3", "kill_enemy.mp3",
+            "18.gif", "17.gif"
         ], function() {
         Q.compileSheets("mario_small.png", "mario_small.json");
         Q.compileSheets("goomba.png", "goomba.json");
