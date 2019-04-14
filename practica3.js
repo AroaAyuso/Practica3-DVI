@@ -9,7 +9,7 @@ window.addEventListener("load",function() {
 
     // CARGA
     Q.loadTMX("level.tmx", function() {
-        Q.state.reset({coins: 0, lives : 3});
+        Q.state.reset({punct: 0, coins: 0, lives : 3});
         Q.stageScene("mainTitle");
     });
 
@@ -21,21 +21,37 @@ window.addEventListener("load",function() {
         stage.viewport.offsetX = -200;
         Q.audio.stop();
 		Q.audio.play('music_main.mp3',{ loop: true });
-/*
-        stage.insert(new Q.Goomba({x : 950, y : 535}));
-        stage.insert(new Q.Goomba({x : 910, y : 535}));
-        stage.insert(new Q.Goomba({x : 700, y : 535}));
-        stage.insert(new Q.Goomba({x : 1200, y : 535}));
-        stage.insert(new Q.Goomba({x : 1300, y : 535}));
 
-        stage.insert(new Q.Bloopa({x : 850, y: 400}));
-        stage.insert(new Q.Bloopa({x : 950, y: 450}));
-        stage.insert(new Q.Bloopa({x : 1050, y: 400}));
-*/
-        stage.insert(new Q.Princess({x: 6500, y: 520}));
+        stage.insert(new Q.Goomba({x : 700, y : 535}));
+        stage.insert(new Q.Goomba({x : 1300, y : 535}));
+        stage.insert(new Q.Goomba({x : 1450, y : 535}));
+        stage.insert(new Q.Goomba({x : 1500, y : 535}));
+        stage.insert(new Q.Bloopa({x : 2600, y : 535}));
+        stage.insert(new Q.Bloopa({x : 2700, y : 535}));
+        stage.insert(new Q.Bloopa({x : 2950, y : 535}));
+        stage.insert(new Q.Goomba({x : 3100, y : 535}));
+        stage.insert(new Q.Goomba({x : 3150, y : 535}));
+        stage.insert(new Q.Goomba({x : 3200, y : 535}));
+        stage.insert(new Q.Goomba({x : 3250, y : 535}));
+        stage.insert(new Q.Goomba({x : 3300, y : 535}));
+        stage.insert(new Q.Goomba({x : 3350, y : 535}));
+        stage.insert(new Q.Goomba({x : 3400, y : 535}));
+        stage.insert(new Q.Goomba({x : 3450, y : 535}));
+        stage.insert(new Q.Goomba({x : 3500, y : 535}));
+        stage.insert(new Q.Goomba({x : 3600, y : 535}));
+        stage.insert(new Q.Goomba({x : 3800, y : 535}));
+        stage.insert(new Q.Goomba({x : 3900, y : 535}));
+        stage.insert(new Q.Goomba({x : 4000, y : 535}));
+        stage.insert(new Q.Goomba({x : 4100, y : 535}));
+        stage.insert(new Q.Goomba({x : 4200, y : 535}));
+        stage.insert(new Q.Goomba({x : 4300, y : 535}));
+        stage.insert(new Q.Goomba({x : 4400, y : 535}));
+        stage.insert(new Q.Bloopa({x : 4750, y : 535}));
+
         stage.insert(new Q.Coin({x: 500, y: 300}));
 
         stage.insert(new Q.Question({x: 700, y: 300}))
+        stage.insert(new Q.Princess({x: 6500, y: 520}));
 
 
     });
@@ -49,7 +65,7 @@ window.addEventListener("load",function() {
         var label = container.insert(new Q.UI.Text({x:0, y: -10 - button.p.h, label: stage.options.label }));
         button.on("click",function() {
             Q.clearStages();
-            Q.state.reset({coins: 0,lives : 3});
+            Q.state.reset({punct: 0, coins: 0,lives : 3});
             Q.stageScene('level1');
             Q.stageScene("hud",1);
         });
@@ -61,12 +77,27 @@ window.addEventListener("load",function() {
     Q.scene('mainTitle',function(stage) {
         var button = new Q.UI.Button({x: Q.width/2, y: Q.height/2, asset : "splash_screen.jpg"});
         stage.insert(button);
-        Q.state.reset({ coins: 0, lives: 3});
+        Q.state.reset({punct: 0, coins: 0, lives: 3});
         button.on("click",function() {
             Q.clearStages();
             Q.stageScene('level1');
             Q.stageScene("hud",1);
         });
+    });
+
+    Q.UI.Text.extend("Punctuation_count", {
+        init: function(p) {
+            this._super(p, {
+                label: "Punct: " + Q.state.get("punct"),
+                color: "white",
+                x: -680,
+                y: -600
+            });
+            Q.state.on("change.punct", this, "update_punct");
+        },
+        update_punct: function(punct) {
+            this.p.label = "Punct: " + punct;
+        }
     });
 
     // CONTADOR DE MONEDAS
@@ -109,6 +140,7 @@ window.addEventListener("load",function() {
             fill: "white"
         }));
 
+        container.insert(new Q.Punctuation_count());
         container.insert(new Q.Coins_count());
         container.insert(new Q.Lives_count());
         stage.insert(container);
@@ -124,7 +156,6 @@ window.addEventListener("load",function() {
                 jumpSpeed: -650,
                 speed: 220,
                 gravity: 1.5,
-                saltando: false,
                 level: 0, //Nivel de desarrollo de Mario: pequeño = 0, grande = 1, fuego = 2, invencible = 3
                 muerto: false
             });
@@ -155,14 +186,27 @@ window.addEventListener("load",function() {
                 direccion = "izquierda";
 
             //Animaciones
-            if(this.p.landed < 0 && !this.p.saltando) {
+            if(this.p.landed < 0) {
                 this.play("saltando_" + direccion);
             }
             else {
-                if (this.p.vx != 0 || this.p.vy != 0)
+                if (this.p.vx != 0 && this.p.speed <= 220)
                     this.play("corriendo_" + direccion);
+                else if (this.p.vx != 0 && this.p.speed > 220)
+                    this.play("corriendo_rapido_" + direccion);
                 else
                     this.play("quieto_" + direccion);
+            }
+
+            if(Q.inputs['fire'] && (Q.inputs['left'] || Q.inputs['right'])) {
+                this.p.speed += 5;
+                if(this.p.speed > 320) 
+                    this.p.speed = 320;
+            }
+            else {
+                this.p.speed -= 5;
+                if(this.p.speed < 220) 
+                    this.p.speed = 220;
             }
 
             //Matamos a Mario cuando se cae del escenario
@@ -287,11 +331,17 @@ window.addEventListener("load",function() {
         hit: function(collision){
             if(collision.obj.isA("Mario") && !this.cogida){ 
                 Q.state.inc('coins', 1);
+                Q.state.inc('punct', 100);
 		        Q.audio.play('coin.mp3',{ loop: false });
                 this.cogida = true;
                 this.animate(
                     {y: this.p.y-50}, 0.3, Q.Easing.Linear, 
                     { callback: function(){ this.destroy() } });
+                if(Q.state.get('coins') == 100) {
+                    Q.state.inc('lives', 1);
+                    Q.state.dec('coins', 100);
+                }
+
 			}
         }
     });
@@ -328,13 +378,14 @@ window.addEventListener("load",function() {
             });
 
             this.entity.on("bump.top", function(collision) {
-                if(collision.obj.isA("Mario") && !collision.obj.p.muerto) { // no se elimina goomba pero sigue colisionando
+                if(collision.obj.isA("Mario") && !collision.obj.p.muerto) { // no se elimina enemigo pero sigue colisionando
                     if(Q.inputs['up']) {
                         collision.obj.p.vy = -500;
                     }
                     else {
                         collision.obj.p.vy = -300;
                     }
+                    Q.state.inc('punct', 1000);
                     Q.audio.play('kill_enemy.mp3',{ loop: false });
                     this.play("muerte", 1);                   
                 }
@@ -342,6 +393,12 @@ window.addEventListener("load",function() {
         },
 
         extend: {
+
+            step: function(p) {
+                if(this.p.y > 590 || this.p.x < 0)
+                    this.destroy();
+            },
+
             muerte: function(p) {
                 this.destroy();
             }
@@ -366,6 +423,8 @@ window.addEventListener("load",function() {
         quieto_izquierda: {frames: [14], loop: false},
         corriendo_derecha: {frames: [1, 2, 3], rate: 1/13, loop: true},
         corriendo_izquierda: {frames: [15, 16, 17], rate: 1/13, loop: true},
+        corriendo_rapido_derecha: {frames: [1, 2, 3], rate: 1/18, loop: true},
+        corriendo_rapido_izquierda: {frames: [15, 16, 17], rate: 1/18, loop: true},
         saltando_derecha: {frames: [4], loop: true},
         saltando_izquierda: {frames: [18], loop: true},
         muerte: {frames: [12], rate: 1.2, loop: false, trigger: "muerte_t"}
